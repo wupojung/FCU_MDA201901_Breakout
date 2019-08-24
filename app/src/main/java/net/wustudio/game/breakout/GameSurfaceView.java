@@ -8,6 +8,8 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
+import net.wustudio.game.breakout.Game.BreakoutGame;
+
 public class GameSurfaceView extends SurfaceView implements Runnable {
 
     //region  // Fields
@@ -23,8 +25,12 @@ public class GameSurfaceView extends SurfaceView implements Runnable {
     private Thread gameThread = null;
 
     //for game config
-    private float offsetX = 0;
+    private float touchOffsetX = 0;
+    private float touchOffsetY = 0;
     private boolean touched = false;
+
+    //for game
+    BreakoutGame game;
 
     //endregion
 
@@ -39,6 +45,8 @@ public class GameSurfaceView extends SurfaceView implements Runnable {
     //region  // Utilities
     private void Initialize(Context context) {
         holder = getHolder();
+
+        game = new BreakoutGame();
     }
     //endregion
 
@@ -62,7 +70,11 @@ public class GameSurfaceView extends SurfaceView implements Runnable {
             canvas.drawColor(Color.BLACK); //清空畫布
 
             //for game logic
-            Log.i(TAG,"Running");//for debug
+            //Log.i(TAG,"Running");//for debug
+            if (touched) {  //有人觸發Touch
+                game.DispatchTouchOffset(touchOffsetX, touchOffsetY);
+            }
+            game.Refresh(canvas);
 
             holder.unlockCanvasAndPost(canvas); // 解除畫布反鎖
         }
@@ -72,10 +84,11 @@ public class GameSurfaceView extends SurfaceView implements Runnable {
     public boolean onTouchEvent(MotionEvent event) {
         //return super.onTouchEvent(event);
         if (event.getAction() == MotionEvent.ACTION_DOWN || event.getAction() == MotionEvent.ACTION_MOVE) {
-            offsetX = event.getX();
+            touchOffsetX = event.getX();
+            touchOffsetY = event.getY();
             touched = true;
         }
-        Log.i(TAG, "onTouchEvent! offsetX=" + offsetX);
+        Log.i(TAG, "onTouchEvent! touch[" + touchOffsetX + "," + touchOffsetY+"]");
         return touched;
     }
 
