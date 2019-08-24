@@ -19,15 +19,15 @@ public class BlockShapeDrawable extends ShapeDrawable {
         blockColor = color;
     }
 
-    public void DrawToCanvas(Canvas canvas) {
+    public void drawToCanvas(Canvas canvas) {
         canvas.drawRect(this.getBounds(), paint);
     }
 
-    public int GetColor() {
+    public int getColor() {
         return paint.getColor();
     }
 
-    public int[] ToIntArray() {
+    public int[] toIntArray() {
         int[] arr = {this.getBounds().left, this.getBounds().top, this.getBounds().right, this.getBounds().bottom, blockColor};
         return arr;
     }

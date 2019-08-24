@@ -25,7 +25,7 @@ public class PaddleShapeDrawable extends ShapeDrawable {
         this.getPaint().setColor(Color.WHITE);
     }
 
-    public void InitCoords(int width, int height) {
+    public void initCoords(int width, int height) {
         SCREEN_WIDTH = width;
         SCREEN_HEIGHT = height;
 
@@ -41,12 +41,12 @@ public class PaddleShapeDrawable extends ShapeDrawable {
         paddle_move_offset = SCREEN_WIDTH / 15;
     }
 
-    public void DrawToCanvas(Canvas canvas) {
+    public void drawToCanvas(Canvas canvas) {
         this.setBounds(left, top, right, bottom);
         this.draw(canvas);
     }
 
-    public void MovePaddle(int x) {
+    public void move(int x) {
         if (x >= left && x <= right) {
             left = x - paddle_width;
             right = x + paddle_width;

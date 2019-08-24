@@ -37,15 +37,13 @@ public class GameSurfaceView extends SurfaceView implements Runnable {
     //region // Ctor
     public GameSurfaceView(Context context) {
         super(context);
-
-        Initialize(context);
+        initialize(context);
     }
     //endregion
 
     //region  // Utilities
-    private void Initialize(Context context) {
+    private void initialize(Context context) {
         holder = getHolder();
-
         game = new BreakoutGame();
     }
     //endregion
@@ -72,14 +70,11 @@ public class GameSurfaceView extends SurfaceView implements Runnable {
             //for game logic
             //Log.i(TAG,"Running");//for debug
             if(game!=null){
-                if(game.GameComponentReady){
-                    if (touched) {  //有人觸發Touch
-                        game.DispatchTouchOffset(touchOffsetX, touchOffsetY);
-                    }
-                    game.Refresh(canvas);
-                }else{
-                    game.SetupGameComponent(canvas);
+                if (touched) {  //有人觸發Touch
+                    game.dispatchTouchOffset(touchOffsetX, touchOffsetY);
+                    touched = false;
                 }
+                game.update(canvas);
             }
             holder.unlockCanvasAndPost(canvas); // 解除畫布反鎖
         }
@@ -97,7 +92,12 @@ public class GameSurfaceView extends SurfaceView implements Runnable {
         return touched;
     }
 
-    public void Pause() {
+    public void destroy(){
+        running = false;
+        gameThread.interrupt();
+    }
+
+    public void pause() {
         running = false; //關閉GameLoop
         while (true) {
             try {
@@ -111,7 +111,7 @@ public class GameSurfaceView extends SurfaceView implements Runnable {
         gameThread = null;
     }
 
-    public void Resume() {
+    public void resume() {
         running = true;  //還原GameLoop
         gameThread = new Thread(this);
         gameThread.start();

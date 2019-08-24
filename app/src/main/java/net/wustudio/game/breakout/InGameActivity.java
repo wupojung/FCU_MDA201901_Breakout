@@ -22,19 +22,27 @@ public class InGameActivity extends Activity {
         setContentView(gameSurfaceView);
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        if(gameSurfaceView!=null){ //傳遞底層訊號
+            gameSurfaceView.destroy();
+        }
+        this.finish();
+    }
 
     @Override
     protected void onPause() {
         super.onPause();
         if(gameSurfaceView!=null){ //傳遞底層訊號
-            gameSurfaceView.Pause();
+            gameSurfaceView.pause();
         }
     }
     @Override
     protected void onResume() {
         super.onResume();
         if(gameSurfaceView!=null){  //傳遞底層訊號
-            gameSurfaceView.Resume();
+            gameSurfaceView.resume();
         }
     }
 

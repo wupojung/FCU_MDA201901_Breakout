@@ -11,11 +11,16 @@ import net.wustudio.game.breakout.Game.GameComponent.PaddleShapeDrawable;
 public class BreakoutGame {
 
     //region  // Fields
-
+    //狀態機
+    private enum eGameStatus {
+        INIT,
+        READY,
+        INGAME,
+        OVER,
+    }
+    private eGameStatus gameStatus = eGameStatus.INIT;
     private int points = 0; //分數
     private int lives = 3;  //生命次數
-
-    public boolean GameComponentReady = false;
 
     //畫筆
     private Paint getReadyPaint;
@@ -26,32 +31,28 @@ public class BreakoutGame {
     private BallShapeDrawable ball;
     private PaddleShapeDrawable paddle;
     private BlockManager blockManager;
-    //
 
-    /*
-
-     */
     //endregion
 
     //region  // Ctor
     public BreakoutGame() {
-        Initialize();
+        initialize();
     }
     //endregion
 
     //region  // Utilities
-    private void Initialize() {
-        InitializeGameComponent(); //初始化所有遊戲元件
-        InitializePaint(); //初始化 筆刷工具
+    private void initialize() {
+        initializeGameComponent(); //初始化所有遊戲元件
+        initializePaint(); //初始化 筆刷工具
     }
 
-    private void InitializeGameComponent() {
+    private void initializeGameComponent() {
         ball = new BallShapeDrawable();
         paddle = new PaddleShapeDrawable();
         blockManager = new BlockManager();
     }
 
-    private void InitializePaint() {
+    private void initializePaint() {
         scorePaint = new Paint();
         scorePaint.setColor(Color.WHITE);
         scorePaint.setTextSize(25);
@@ -67,34 +68,86 @@ public class BreakoutGame {
         getReadyPaint.setTextSize(45);
     }
 
-    private void RefreshUI(Canvas canvas) {
+    private void refreshUI(Canvas canvas) {
         canvas.drawText("得分:" + points, 0, 25, scorePaint);
         canvas.drawText("生命:" + lives, canvas.getWidth(), 25, livesPaint);
+        switch (gameStatus) {
+            case READY:
+                getReadyPaint.setColor(Color.WHITE);
+                canvas.drawText("請準備", canvas.getWidth() / 2, (canvas.getHeight() / 2) - (ball.getBounds().height()), getReadyPaint);
+                break;
+            case OVER:
+                getReadyPaint.setColor(Color.RED);
+                canvas.drawText("GAME OVER!!!", canvas.getWidth() / 2, (canvas.getHeight() / 2) - (ball.getBounds().height()) - 50, getReadyPaint);
+                break;
+        }
     }
 
-    private void RefreshGameComponent(Canvas canvas) {
-        blockManager.DrawToCanvas(canvas);
-        paddle.DrawToCanvas(canvas);
-        ball.DrawToCanvas(canvas);
+    private void processGameLogin() {
+        lives -= ball.move();  //移動球 (如果死掉，會回傳1)
+        ball.checkPaddleCollision(paddle); //檢察是否碰撞到　球拍Paddle
+        points += ball.checkBlocksCollision(blockManager); //碰撞檢察 (如果撞到block 會回傳分數)
+    }
+
+    private void checkGameOver() {
+        if (lives < 0) {
+            gameStatus = eGameStatus.OVER;
+        }
+    }
+
+    private void refreshGameComponent(Canvas canvas) {
+        blockManager.drawToCanvas(canvas);
+        paddle.drawToCanvas(canvas);
+        ball.drawToCanvas(canvas);
+    }
+
+    private void addToCanvas(Canvas canvas) {
+        paddle.initCoords(canvas.getWidth(), canvas.getHeight());
+        ball.initCoords(canvas.getWidth(), canvas.getHeight());
+        blockManager.initCoords(canvas.getWidth(), canvas.getHeight());
     }
     //endregion
 
     //region  // Methods
 
-    public void SetupGameComponent(Canvas canvas) {
-        paddle.InitCoords(canvas.getWidth(), canvas.getHeight());
-        ball.InitCoords(canvas.getWidth(), canvas.getHeight());
-        blockManager.InitCoords(canvas.getWidth(), canvas.getHeight());
-        GameComponentReady = true;
+    public void dispatchTouchOffset(float x, float y) {
+        switch (gameStatus) {
+            case READY: //有人touch 到 screen , 開始遊戲!
+                gameStatus = eGameStatus.INGAME;
+                break;
+            case INGAME:
+                paddle.move((int)x);
+                break;
+            case OVER:
+                points = 0;
+                lives = 3;
+                blockManager.reset();
+                gameStatus = eGameStatus.INGAME;
+                break;
+        }
     }
 
-    public void DispatchTouchOffset(float x, float y) {
-
-    }
-
-    public void Refresh(Canvas canvas) {
-        RefreshUI(canvas);
-        RefreshGameComponent(canvas);
+    public void update(Canvas canvas) {
+        switch (gameStatus) {
+            case INIT:
+                addToCanvas(canvas);
+                gameStatus = eGameStatus.READY;
+                break;
+            case READY:
+                refreshUI(canvas);
+                refreshGameComponent(canvas);
+                break;
+            case INGAME:
+                checkGameOver();
+                processGameLogin();
+                refreshUI(canvas);
+                refreshGameComponent(canvas);
+                break;
+            case OVER:
+                refreshUI(canvas);
+                refreshGameComponent(canvas);
+                break;
+        }
     }
     //endregion
 

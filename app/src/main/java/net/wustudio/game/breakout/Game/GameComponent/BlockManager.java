@@ -9,20 +9,34 @@ import java.util.ArrayList;
 public class BlockManager {
 
     private ArrayList<BlockShapeDrawable> blocksList;
+    private int SCREEN_WIDTH;
+    private int SCREEN_HEIGHT;
 
     public BlockManager() {
-        Initialize();
+        initialize();
     }
 
-    private void Initialize() {
+    private void initialize() {
         blocksList = new ArrayList<>();
     }
 
-    public void InitCoords(int width, int height) {
-        int blockHeight = height / 36;
-        int spacing = width / 144;
-        int topOffset = height / 10;
-        int blockWidth = (width / 10) - spacing;
+    public void initCoords(int width, int height) {
+        SCREEN_WIDTH = width;
+        SCREEN_HEIGHT = height;
+        reset();
+    }
+
+    public void drawToCanvas(Canvas canvas){
+        for (int i = 0; i < blocksList.size(); i++) {
+            blocksList.get(i).drawToCanvas(canvas);
+        }
+    }
+
+    public void reset(){
+        int blockHeight = SCREEN_HEIGHT / 36;
+        int spacing = SCREEN_WIDTH / 144;
+        int topOffset = SCREEN_HEIGHT / 10;
+        int blockWidth = (SCREEN_WIDTH / 10) - spacing;
 
         blocksList.clear();
 
@@ -54,9 +68,7 @@ public class BlockManager {
         }
     }
 
-    public void DrawToCanvas(Canvas canvas){
-        for (int i = 0; i < blocksList.size(); i++) {
-            blocksList.get(i).DrawToCanvas(canvas);
-        }
+    public ArrayList<BlockShapeDrawable> getList(){
+        return  blocksList;
     }
 }
