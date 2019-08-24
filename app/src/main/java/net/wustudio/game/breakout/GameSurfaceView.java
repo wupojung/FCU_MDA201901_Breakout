@@ -71,11 +71,16 @@ public class GameSurfaceView extends SurfaceView implements Runnable {
 
             //for game logic
             //Log.i(TAG,"Running");//for debug
-            if (touched) {  //有人觸發Touch
-                game.DispatchTouchOffset(touchOffsetX, touchOffsetY);
+            if(game!=null){
+                if(game.GameComponentReady){
+                    if (touched) {  //有人觸發Touch
+                        game.DispatchTouchOffset(touchOffsetX, touchOffsetY);
+                    }
+                    game.Refresh(canvas);
+                }else{
+                    game.SetupGameComponent(canvas);
+                }
             }
-            game.Refresh(canvas);
-
             holder.unlockCanvasAndPost(canvas); // 解除畫布反鎖
         }
     }
